@@ -1,1 +1,2 @@
-console.log("index.jsx");
+let element = <div>hello</div>
+console.log("index.jsx", element);
