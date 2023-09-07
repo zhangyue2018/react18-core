@@ -10,6 +10,6 @@ export function updateContainer(element, container) {
     const current = container.current;
     const update = createUpdate();
     update.payload = { element };
-    const root = enqueueUpdate(current, update);
+    const root = enqueueUpdate(current, update); // root是FiberRoot
     scheduleUpdateOnFiber(root);
 }
