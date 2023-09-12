@@ -19,7 +19,7 @@ export function FiberNode(tag, pendingProps, key) {
     this.memoizedState = null; // 当前已经生效了的state
     this.updateQueue = null;  // fiber节点中等待更新的东西
     this.flags = NoFlags; // 相应的标记，比如需要被删除、新增、修改等
-    this.sutreeFlags = NoFlags; // 子节点相应的标记
+    this.subtreeFlags = NoFlags; // 子节点相应的标记
     this.alternate = null; // 双缓存策略，当前用于显示的fiber和当前处理更新的fiber的互相指向
     this.index = 0; // 序号，父节点中的第几个子节点
 }
@@ -60,7 +60,7 @@ export function createWorkInProgress(current, pendingProps) {
         workInProgress.pendingProps = pendingProps;
         workInProgress.type = current.type;
         workInProgress.flags = NoFlags;
-        workInProgress.sutreeFlags = NoFlags;
+        workInProgress.subtreeFlags = NoFlags;
     }
     workInProgress.child = current.child;
     workInProgress.memoizedProps = current.memoizedProps;

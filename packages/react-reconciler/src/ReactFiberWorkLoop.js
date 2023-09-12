@@ -1,6 +1,7 @@
 import { scheduleCallback } from "scheduler";
 import { createWorkInProgress } from './ReactFiber';
 import { beginWork } from './ReactFiberBeginWork';
+import { completedWork } from './ReactFiberCompleteWork';
 
 // 工作中的整个fiber树
 let workInProgress = null;
@@ -30,8 +31,17 @@ function performConcurrentWorkOnRoot(root) {
     // fiberRoot的finishedWork和页面基本上是一致的（当然会有一个时间差）
     // fiberRoot.finishedWork完成赋值后，接着进行commitRoot操作，将真实DOM挂载到页面
     root.finishedWork = finishedWork;
-    // commitRoot(root);
+    commitRoot(root);
 }
+
+/**
+ * 提交根节点
+ * @param {*} root - 根节点
+ */
+function commitRoot(root) {
+    console.log('开始commitWork');
+}
+
 /**
  * 同步渲染根节点
  * @param {*} root 
@@ -67,17 +77,29 @@ function performUnitOfWork(unitOfWork) {
     const next = beginWork(current, unitOfWork);
     unitOfWork.memoizedProps = unitOfWork.pendingProps;
 
-    workInProgress = null; // todo:别忘记删除
-    // if(next === null) {
-    //     completeUnitOfWork(unitOfWork);
-    // } else {
-    //     workInProgress = next;
-    // }
+    // workInProgress = null; // todo:别忘记删除
+    if(next === null) {
+        completeUnitOfWork(unitOfWork);
+    } else {
+        workInProgress = next;
+    }
 }
 /**
  * 完成一个工作单元
  * @param {*} unitOfWork - 工作单元
  */
 function completeUnitOfWork(unitOfWork) {
-    console.log('开始completeWork阶段');
+    let completeWork = unitOfWork;
+    do {
+        const current = completeWork.alternate;
+        const returnFiber = completeWork.return;
+        completedWork(current, completeWork);
+        const siblingFiber = completeWork.sibling;
+        if(siblingFiber !== null) {
+            workInProgress = siblingFiber;
+            return;
+        }
+        completeWork = returnFiber;
+        workInProgress = completeWork;
+    } while(completeWork !== null)
 }

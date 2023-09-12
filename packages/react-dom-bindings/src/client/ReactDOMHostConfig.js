@@ -1,4 +1,4 @@
-
+import { setInitialProperties } from './ReactDOMComponent';
 /**
  * 判断是否需要设置文本内容
  * @param {string} type - DOM元素的类型
@@ -8,4 +8,44 @@
  */
 export function shouldSetTextContent(type, props) {
     return typeof props.children === 'string' || typeof props.children === 'number';
+}
+
+/**
+ * 创建文本节点实例
+ * @param {string} content - 文本内容
+ * @returns {Text} - 创建的文本节点
+ */
+export function createTextInstance(content) {
+    return document.createTextNode(content);
+}
+
+/**
+ * 创建DOM元素实例
+ * @param {string} type - DOM元素的类型
+ * @returns {HTMLElement} - 创建的DOM元素
+ * createInstance函数用于创建一个新的DOM元素，元素类型由传入的type参数指定
+ */
+export function createInstance(type) {
+    return document.createElement(type);
+}
+
+/**
+ * 将初始子节点附加到父节点
+ * @param {HTMLElement} parent - 父节点
+ * @param {HTMLElement|Text} child - 子节点
+ */
+export function appendInitialChild(parent, child) {
+    parent.appendChild(child);
+}
+
+/**
+ * 为DOM元素设置初始属性
+ * @param {HTMLElement} domElement - 目标DOM元素 
+ * @param {string} type - DOM元素的类型
+ * @param {object} props - 需要设置的属性对象
+ * 
+ * finalizeInitialChildren函数用于在DOM创建完成后，设置其初始属性
+ */
+export function finalizeInitialChildren(domElement, type, props) {
+    setInitialProperties(domElement, type, props);
 }
