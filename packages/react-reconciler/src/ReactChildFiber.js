@@ -1,5 +1,5 @@
 import { REACT_ELEMENT_TYPE } from "shared/ReactSymbols";
-import isArray from "shared/isArray";
+import { isArray } from "shared/isArray";
 import { createFiberFromElement, createFiberFromText } from './ReactFiber';
 import { Placement } from "./ReactFiberFlags";
 
@@ -119,6 +119,7 @@ function createChildReconciler(shouldTrackSideEffects) {
         if(isArray(newChild)) {
             return reconcileChildrenArray(returnFiber, currentFirstFiber, newChild);
         }
+        return null;
     }
     return reconcileChildFibers
 }

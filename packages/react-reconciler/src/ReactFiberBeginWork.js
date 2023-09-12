@@ -1,4 +1,4 @@
-import { HostComponent, HostRoot } from "./ReactWorkTags";
+import { HostComponent, HostRoot, HostText } from "./ReactWorkTags";
 import { mountChildFibers, reconcileChildFibers } from './ReactChildFiber';
 import { processUpdateQueue } from './ReactFiberClassUpdateQueue';
 import { shouldSetTextContent } from 'react-dom-bindings/src/client/ReactDOMHostConfig';
@@ -49,7 +49,7 @@ function updateHostComponent(current, workInProgress) {
 }
 
 /**
- * 开始根据新的虚拟DOM构建新的Fiber子链表
+ * 开始根据新的虚拟DOM构建新的Fiber子链表--注意：构建的是当前fiber的子链表
  * @param {FiberNode} current - 老的Fiber节点
  * @param {FiberNode} workInProgress - 新的Fiber节点
  * @returns {FiberNode|null} - 新的子Fiber节点或者null

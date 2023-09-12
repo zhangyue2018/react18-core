@@ -1,4 +1,4 @@
-import { HostComponent, HostRoot, IndeterminateComponent } from 'react-reconciler/src/ReactWorkTags';
+import { HostComponent, HostRoot, HostText, IndeterminateComponent } from 'react-reconciler/src/ReactWorkTags';
 import { NoFlags } from 'react-reconciler/src/ReactFiberFlags';
 
 /**
@@ -56,6 +56,7 @@ export function createWorkInProgress(current, pendingProps) {
         workInProgress.type = current.type;
         workInProgress.stateNode = current.stateNode;
         workInProgress.alternate = current;
+        current.alternate = workInProgress;
     } else {
         workInProgress.pendingProps = pendingProps;
         workInProgress.type = current.type;

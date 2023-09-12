@@ -1,5 +1,5 @@
 import { NoFlags } from "./ReactFiberFlags";
-import { HostComponent, HostText } from "./ReactWorkTags";
+import { HostRoot, HostComponent, HostText } from "./ReactWorkTags";
 import {
     createTextInstance,
     createInstance,
@@ -57,6 +57,7 @@ export function completedWork(current, workInProgress) {
         case HostText:
             const newText = newProps;
             workInProgress.stateNode = createTextInstance(newText);
+            workInProgress.child = null; // 为了解决bubbleProperties的bug添加，如果后期出错，需要再改动
             bubbleProperties(workInProgress);
             break;
     }
@@ -72,7 +73,7 @@ function bubbleProperties(completedWork) {
     while(child !== null) {
         subtreeFlags |= child.subtreeFlags;
         subtreeFlags |= child.flags;
-        child = chlid.sibling;
+        child = child.sibling;
     }
     completedWork.subtreeFlags = subtreeFlags;
 }

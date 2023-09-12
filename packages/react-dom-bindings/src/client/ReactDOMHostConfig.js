@@ -49,3 +49,25 @@ export function appendInitialChild(parent, child) {
 export function finalizeInitialChildren(domElement, type, props) {
     setInitialProperties(domElement, type, props);
 }
+
+/**
+ * 将子节点附加到父节点
+ * @param {HTMLElement} parentInstance - 父节点
+ * @param {HTMLElement|Text} child - 子节点
+ * appendChild函数用于将子节点附加到指定的父节点
+ */
+export function appendChild(parentInstance, child) {
+    parentInstance.appendChild(child);
+}
+
+/**
+ * 在指定子节点前插入新的子节点
+ * @param {HTMLElement} parentInstance - 父节点
+ * @param {HTMLElement|Text} child - 需要插入的新子节点
+ * @param {HTMLElement|Text} beforeChild - 指定的子节点
+ * 
+ * insertBefore函数用于在父节点的指定子节点前插入一个新的子节点
+ */
+export function insertBefore(parentInstance, child, beforeChild) {
+    parentInstance.insertBefore(child, beforeChild);
+}
