@@ -1,0 +1,1 @@
+export const IS_CAPTURE_PHASE = 1 << 2; // 0001 左移2位变成 0100
