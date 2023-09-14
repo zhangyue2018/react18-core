@@ -23,6 +23,6 @@ export function registerTwoPhaseEvent(registrationName, dependencies) {
  */
 export function registerDirectEvent(registrationName, dependencies) {
     for(let i=0; i<dependencies.length; i++) {
-        allNativeEvents.add(dependencies[i]);
+        allNativeEvents.add(dependencies[i]); // allNativeEvents是Set，有去重的功能
     }
 }

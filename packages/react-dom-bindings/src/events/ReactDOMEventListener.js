@@ -24,8 +24,15 @@ function dispatchDiscreteEvent(domEventName, eventSystemFlags, container, native
     dispatchEvent(domEventName, eventSystemFlags, container, nativeEvent);
 }
 
+/**
+ * 调度一个事件
+ * @param {string} domEventName - DOM事件名称
+ * @param {number} eventSystemFlags - 事件系统标识，用于表示事件在哪个阶段（捕获/冒泡）
+ * @param {HTMLElement} targetContainer - 目标容器，通常是一个HTML元素
+ * @param {Event} nativeEvent - 原生的浏览器事件对象
+ */
 export function dispatchEvent(domEventName, eventSystemFlags, targetContainer, nativeEvent) {
     const nativeEventTarget = getEventTarget(nativeEvent);
-    const targetInst = getClosestInstanceFromNode(nativeEventTarget);
+    const targetInst = getClosestInstanceFromNode(nativeEventTarget); // targetInst是一个Fiber对象
     dispatchEventForPluginEventSystem(domEventName, eventSystemFlags, nativeEvent, targetInst, targetContainer);
 }
