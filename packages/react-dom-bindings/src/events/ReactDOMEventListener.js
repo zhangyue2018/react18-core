@@ -1,4 +1,6 @@
-
+import getEventTarget from './getEventTarget';
+import { getClosestInstanceFromNode } from '../client/ReactDOMComponentTree';
+import { dispatchEventForPluginEventSystem } from './DOMPluginEventSystem';
 /**
  * 创建一个具有优先级的事件监听器包装器
  * @param {HTMLElement} targetContainer - 目标容器，通常是一个HTML元素 
@@ -19,5 +21,11 @@ export function createEventListenerWrapperWithPriority(targetContainer, domEvent
  * @param {Event} nativeEvent - 原生的浏览器事件对象
  */
 function dispatchDiscreteEvent(domEventName, eventSystemFlags, container, nativeEvent) {
+    dispatchEvent(domEventName, eventSystemFlags, container, nativeEvent);
+}
 
+export function dispatchEvent(domEventName, eventSystemFlags, targetContainer, nativeEvent) {
+    const nativeEventTarget = getEventTarget(nativeEvent);
+    const targetInst = getClosestInstanceFromNode(nativeEventTarget);
+    dispatchEventForPluginEventSystem(domEventName, eventSystemFlags, nativeEvent, targetInst, targetContainer);
 }

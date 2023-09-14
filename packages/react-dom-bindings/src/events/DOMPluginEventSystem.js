@@ -3,6 +3,7 @@ import * as SimpleEventPlugin from './plugins/SimpleEventPlugin';
 import { IS_CAPTURE_PHASE } from './EventSystemFlags';
 import { addEventCaptureListener, addEventBubbleListener } from './EventListener';
 import { createEventListenerWrapperWithPriority } from './ReactDOMEventListener';
+import getEventTarget from './getEventTarget';
 
 SimpleEventPlugin.registerEvents();
 
@@ -50,4 +51,27 @@ function addTrappedEventListener(targetContainer, domEventName, eventSystemFlags
     } else {
         addEventBubbleListener(targetContainer, domEventName, listener);
     }
+}
+
+export function dispatchEventForPluginEventSystem(domEventName, eventSystemFlags, nativeEvent, targetInst, targetContainer) {
+    dispatchEventForPlugins(domEventName, eventSystemFlags, nativeEvent, targetInst, targetContainer);
+}
+
+export function accumulateSinglePhaseListener(targetFiber, reactName, nativeEventType, isCapturePhase) {
+
+}
+
+function dispatchEventForPlugins(domEventName, eventSystemFlags, nativeEvent, targetInst, targetContainer) {
+    const nativeEventTarget = getEventTarget(nativeEvent);
+    const dispatchQueue = [];
+    extractEvents(dispatchQueue, domEventName, targetInst, nativeEvent, nativeEventTarget, eventSystemFlags, targetContainer);
+    processDispatchQueue(dispatchQueue, eventSystemFlags);
+}
+
+function extractEvents(dispatchQueue, domEventName, targetInst, nativeEvent, nativeEventTarget, eventSystemFlags, targetContainer) {
+    SimpleEventPlugin.extractEvents(dispatchQueue, domEventName, targetInst, nativeEvent, nativeEventTarget, eventSystemFlags, targetContainer);
+}
+
+function processDispatchQueue(dispatchQueue, eventSystemFlags) {
+
 }
