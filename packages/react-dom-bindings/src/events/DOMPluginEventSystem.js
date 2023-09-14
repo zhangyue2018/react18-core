@@ -93,5 +93,34 @@ function extractEvents(dispatchQueue, domEventName, targetInst, nativeEvent, nat
 }
 
 function processDispatchQueue(dispatchQueue, eventSystemFlags) {
+    const isCapturePhase = (eventSystemFlags & IS_CAPTURE_PHASE) !== 0;
+    for(let i=0; i<dispatchQueue.length; i++) {
+        const { event, listeners } = dispatchQueue[i];
+        processDispatchQueueItemsInOrder(event, listeners, isCapturePhase);
+    }
+}
 
+function processDispatchQueueItemsInOrder(event, dispatchListeners, isCapturePhase) {
+    if(isCapturePhase) {
+        for(let i=dispatchListeners.length-1; i>=0; i--) {
+            const { listener, currentTarget } = dispatchListeners[i];
+            if(event.isPropagationStopped()) {
+                return;
+            }
+            executeDispatch(event, listener, currentTarget);
+        }
+    } else {
+        for(let i=0; i<dispatchListeners.length; i++) {
+            const { listener, currentTarget } = dispatchListeners[i];
+            if(event.isPropagationStopped()) {
+                return;
+            }
+            executeDispatch(event, listener, currentTarget);
+        }
+    }
+}
+
+function executeDispatch(event, listener, currentTarget) {
+    event.currentTarget = currentTarget;
+    listener(event);
 }
