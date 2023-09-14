@@ -4,6 +4,8 @@ import { IS_CAPTURE_PHASE } from './EventSystemFlags';
 import { addEventCaptureListener, addEventBubbleListener } from './EventListener';
 import { createEventListenerWrapperWithPriority } from './ReactDOMEventListener';
 import getEventTarget from './getEventTarget';
+import { HostComponent } from 'react-reconciler/src/ReactWorkTags';
+import getListener from './getListener';
 
 SimpleEventPlugin.registerEvents();
 
@@ -58,7 +60,25 @@ export function dispatchEventForPluginEventSystem(domEventName, eventSystemFlags
 }
 
 export function accumulateSinglePhaseListener(targetFiber, reactName, nativeEventType, isCapturePhase) {
+    const captureName = reactName + 'Capture';
+    const reactEventName = isCapturePhase ? captureName : reactName;
+    const listeners = [];
+    let instance = targetFiber;
+    while(instance !== null) {
+        const { stateNode, tag } = instance;
+        if(tag === HostComponent && stateNode !== null) {
+            const listener = getListener(instance, reactEventName);
+            if(listener) {
+                listeners.push(createDispatchListener(instance, listener, stateNode));
+            }
+        }
+    }
 
+    return listeners;
+}
+
+function createDispatchListener(instance, listener, currentTarget) {
+    return { instance, listener, currentTarget };
 }
 
 function dispatchEventForPlugins(domEventName, eventSystemFlags, nativeEvent, targetInst, targetContainer) {
