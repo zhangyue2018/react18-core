@@ -22,6 +22,7 @@ export function FiberNode(tag, pendingProps, key) {
     this.subtreeFlags = NoFlags; // 子节点相应的标记
     this.alternate = null; // 双缓存策略，当前用于显示的fiber和当前处理更新的fiber的互相指向
     this.index = 0; // 序号，父节点中的第几个子节点
+    this.deletions = null;
 }
 
 /**
