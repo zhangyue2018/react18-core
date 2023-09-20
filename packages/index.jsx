@@ -1,23 +1,24 @@
+import * as React from 'react';
 import { createRoot } from 'react-dom/client';
-const root = createRoot(document.getElementById('root'));
 
-function FunctionComponent(props) {
-    return  <div
-                onClick={() => console.log('ParentNodeBubble')}
-                onClickCapture={(event) => {
-                    console.log('ParentNodeCapture');
-                    // event.stopPropagation();
-                }}>
-                    <div>课程名称：手写React高质量源码迈向高阶开发</div>
-                    <div
-                        onClick={(event) => {
-                            console.log('ChildNodeBubble');
-                            event.stopPropagation();
-                        }}
-                        onClickCapture={() => console.log('ChildNodeCapture')}>讲师：杨艺韬</div>
-                    <div>电子书：<a style={{color: 'blue'}} href='#'>aa</a></div>
-    </div>
+function getAge(state, action) {
+    switch(action.type) {
+        case 'add':
+            return state + action.value;
+        default:
+            return state;
+    }
 }
 
+function FunctionComponent() {
+    const [number, setAge] = React.useReducer(getAge, 0);
+
+    return  <button onClick={ () => {
+        setAge({type: 'add', value: 1});
+        setAge({type: 'add', value: 1});
+    }}>{number}</button>
+}
+
+const root = createRoot(document.getElementById('root'));
 root.render(<FunctionComponent />);
 console.log('index.jsx', <FunctionComponent />);

@@ -13,6 +13,7 @@ export function FiberNode(tag, pendingProps, key) {
     this.type = null; // 代表fiber节点对应虚拟DOM的类型
     this.stateNode = null; // 可以先理解成，指向真实的DOM节点
     this.return = null; // 指向父Fiber节点
+    this.child = null;
     this.sibling = null; // 指向兄弟Fiber节点
     this.pendingProps = pendingProps; // 等待生效的props
     this.memoizedProps = null; // 当前已经生效了的props

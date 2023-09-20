@@ -1,10 +1,11 @@
-import { NoFlags } from "./ReactFiberFlags";
-import { HostRoot, HostComponent, HostText } from "./ReactWorkTags";
+import { NoFlags, Update } from "./ReactFiberFlags";
+import { HostRoot, HostComponent, HostText, FunctionComponent } from "./ReactWorkTags";
 import {
     createTextInstance,
     createInstance,
     appendInitialChild,
-    finalizeInitialChildren
+    finalizeInitialChildren,
+    prepareUpdate
 } from 'react-dom-bindings/src/client/ReactDOMHostConfig'
 
 /**
@@ -35,6 +36,20 @@ function appendAllChildren(parent, workInProgress) {
     }
 }
 
+function markUpdate(workInProgress) {
+    workInProgress.flags |= Update;
+}
+
+function updateHostComponent(current, workInProgress, type, newProps) {
+    const oldProps = current.memoizedProps;
+    const instance = workInProgress.stateNode;
+    const updatePayload = prepareUpdate(instance, type, oldProps, newProps);
+    workInProgress.updateQueue = updatePayload;
+    if(updatePayload) {
+        markUpdate(workInProgress);
+    }
+}
+
 /**
  * 完成一个fiber节点
  * @param {Fiber} current - 当前旧的Fiber节点
@@ -48,10 +63,17 @@ export function completedWork(current, workInProgress) {
             break;
         case HostComponent:
             const { type } = workInProgress;
-            const instance = createInstance(type, newProps, workInProgress);
-            appendAllChildren(instance, workInProgress);
-            workInProgress.stateNode = instance;
-            finalizeInitialChildren(instance, type, newProps);
+            if(current !== null && workInProgress.stateNode !== null) {
+                updateHostComponent(current, workInProgress, type, newProps);
+            } else {
+                const instance = createInstance(type, newProps, workInProgress);
+                appendAllChildren(instance, workInProgress);
+                workInProgress.stateNode = instance;
+                finalizeInitialChildren(instance, type, newProps);
+            }
+            bubbleProperties(workInProgress);
+            break;
+        case FunctionComponent:
             bubbleProperties(workInProgress);
             break;
         case HostText:

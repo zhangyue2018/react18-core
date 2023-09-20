@@ -4,6 +4,7 @@ import { beginWork } from './ReactFiberBeginWork';
 import { completedWork } from './ReactFiberCompleteWork';
 import { MutationMask, NoFlags } from "./ReactFiberFlags";
 import { commitMutationEffectsOnFiber } from './ReactFiberCommitWork';
+import { finishQueueingConcurrentUpdates } from './ReactFiberConcurrentUpdates';
 
 // 工作中的整个fiber树
 let workInProgress = null;
@@ -64,6 +65,7 @@ function renderRootSync(root) {
  */
 function prepareFreshStack(root) {
     workInProgress = createWorkInProgress(root.current, null); // root.current是rootFiber
+    finishQueueingConcurrentUpdates();
 }
 /**
  * 同步工作循环

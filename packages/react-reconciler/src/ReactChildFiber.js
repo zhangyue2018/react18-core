@@ -175,7 +175,7 @@ function createChildReconciler(shouldTrackSideEffects) {
      * @returns {object|null} 返回一个更新后的fiber节点，如果新的子节点和旧的fiber节点不匹配，则返回null
      */
     function updateSlot(returnFiber, oldFiber, newChild) {
-        const key = oldFiber.key !== null ? oldFiber.key : null;
+        const key = oldFiber !== null ? oldFiber.key : null;
         if(newChild !== null && typeof newChild === 'object') {
             switch(newChild.$$typeof) {
                 case REACT_ELEMENT_TYPE:
@@ -249,7 +249,7 @@ function createChildReconciler(shouldTrackSideEffects) {
                 }
             }
         }
-        return null;
+        // return null;
     }
     
     /**
@@ -265,6 +265,8 @@ function createChildReconciler(shouldTrackSideEffects) {
         let newIdx = 0;
         let oldFiber = currentFirstChild;
         let nextOldFiber = null;
+        let lastPlacedIndex = 0;
+
         // 第一套方案
         for(; oldFiber !== null && newIdx < newChildren.length; newIdx++) {
             nextOldFiber = oldFiber.sibling;
@@ -281,10 +283,15 @@ function createChildReconciler(shouldTrackSideEffects) {
             if(previousNewFiber === null) {
                 resultingFirstChild = newFiber;
             } else {
-                previousNewFiber.next = newFiber;
+                previousNewFiber.sibling = newFiber;
             }
             previousNewFiber = newFiber;
             oldFiber = nextOldFiber;
+        }
+
+        if(newIdx === newChildren.length) {
+            deleteRemainingChildren(returnFiber, oldFiber);
+            return resultingFirstChild;
         }
 
         // 第二套方案
@@ -292,7 +299,7 @@ function createChildReconciler(shouldTrackSideEffects) {
             for(; newIdx < newChildren.length; newIdx++) {
                 const newFiber = createChild(returnFiber, newChildren[newIdx]);
                 if(newFiber === null) continue;
-                placeChild(newFiber, lastPlacedIndex, newIdx); 
+                lastPlacedIndex = placeChild(newFiber, lastPlacedIndex, newIdx); 
                 if(previousNewFiber === null) {
                     resultingFirstChild = newFiber;
                 } else {
@@ -312,14 +319,18 @@ function createChildReconciler(shouldTrackSideEffects) {
                         existingChildren.delete(newFiber.key === null ? newIdx : newFiber.key);
                     }
                 }
-            }
-            lastPlacedIndex = placeChild(newFiber, lastPlacedIndex, newIdx);
-            if(previousNewFiber === null) {
-                resultingFirstChild = newFiber;
-            } else {
-                previousNewFiber.sibling = newFiber;
-            }
-            previousNewFiber = newFiber;
+                lastPlacedIndex = placeChild(newFiber, lastPlacedIndex, newIdx);
+                if(previousNewFiber === null) {
+                    resultingFirstChild = newFiber;
+                } else {
+                    previousNewFiber.sibling = newFiber;
+                }
+                previousNewFiber = newFiber;
+            } 
+        }
+
+        if(shouldTrackSideEffects) {
+            existingChildren.forEach(child => deleteChild(returnFiber, child))
         }
 
         return resultingFirstChild;
