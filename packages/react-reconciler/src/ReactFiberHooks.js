@@ -11,11 +11,13 @@ let currentHook = null;
 
 // Dispatcher对象在组件Mount时使用的Hooks
 const HooksDispatcherOnMount = {
-    useReducer: mountReducer
+    useReducer: mountReducer,
+    useState: mountState
 }
 
 const HooksDispatcherOnUpdate = {
-    useReducer: updateReducer
+    useReducer: updateReducer,
+    useState: updateState
 }
 
 /**
@@ -33,6 +35,42 @@ function mountReducer(reducer, initialArg) {
     hook.queue = queue; // 将queue对象赋值给hook的queue属性
     const dispatch = (queue.dispatch = dispatchReducerAction.bind(null, currentlyRenderingFiber, queue));
     return [hook.memoizedState, dispatch];
+}
+
+function baseStateReducer(state, action) {
+    return typeof action === 'function' ? action(state) : action;
+}
+
+function mountState(initialState) {
+    const hook = mountWorkInProgressHook();
+    hook.memoizedState = initialState;
+    const queue = {
+        pending: null,
+        dispatch: null,
+        lastRenderedReducer: baseStateReducer,
+        lastRenderedState: initialState
+    }
+    hook.queue = queue;
+    const dispatch = queue.dispatch = dispatchSetStateAction.bind(null, currentlyRenderingFiber, queue);
+    return [hook.memoizedState, dispatch];
+}
+
+function dispatchSetStateAction(fiber, queue, action) {
+    const update = {
+        action,
+        hasEagerState: false,
+        eagerState: null,
+        next: null
+    };
+    const { lastRenderedReducer, lastRenderedState } = queue;
+    const eagerState = lastRenderedReducer(lastRenderedState, action);
+    update.eagerState = eagerState;
+    update.hasEagerState = true;
+    if(Object.is(eagerState, lastRenderedState)) {
+        return;
+    }
+    const root = enqueueConcurrentHookUpdate(fiber, queue, update);
+    scheduleUpdateOnFiber(root);
 }
 
 function updateReducer(reducer) {
@@ -55,6 +93,10 @@ function updateReducer(reducer) {
 
     hook.memoizedState = newState;
     return [hook.memoizedState, queue.dispatch];
+}
+
+function updateState() {
+    return updateReducer(baseStateReducer);
 }
 
 /**
