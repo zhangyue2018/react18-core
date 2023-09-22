@@ -8,6 +8,11 @@
 ### 1.每调用一次，从fiber的hook链表中取出一个hook对象（其实是创建了一个新的hook对象，然后复用了老hook的数据），根据传参，构建新的effect对象，将effect加入到新的fiber的effect链表（新fiber的effect链表是空的）中。
 ### 2.根据传参deps，对比新旧deps，如果完全相同，则说明没必要执行副作用，不给fiber添加副作用标记；如果有差异，则给fiber添加副作用标记。
 
-## 在commitRoot执行完后，执行副作用时，先执行commitPassiveUnmountEffects，再执行commitPassiveMountEffects。
+## 在commitRoot执行完后，再宏任务中的副作用执行时，先执行commitPassiveUnmountEffects，再执行commitPassiveMountEffects。
 ## 所以执行副作用时，一定会执行两个阶段，只不过在初始化渲染阶段，destroy还为赋值，所以commitPassiveUnmountEffects函数不执行destroy，
 ## 当commitPassiveMountEffects执行过一次之后（即create执行后，且有返回值），destroy才被赋值。这样后续的更新阶段destroy才会被执行。
+
+## useLayoutEffect
+### mountLayoutEffect,逻辑和mountEffect一样，只是传参不同
+### updateLayoutEffect,逻辑和updateEffect一样，只是传参不同
+### 在commitRoot主要工作执行完成后，会立即执行副作用（commitLayoutEffects），也就是说commitLayoutEffects是在本次的宏任务中执行的。

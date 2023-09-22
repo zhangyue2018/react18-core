@@ -5,10 +5,17 @@ function FunctionComponent() {
     const [number, setAge] = React.useState(0);
     const [name, setName] = React.useState('zy');
 
-    React.useLayoutEffect(() => {
-        console.log('create--useLayoutEffects');
+    React.useEffect(() => {
+        console.log('create');
         return () => {
-            console.log('destroy---useLayoutEffects');
+            console.log('destroy');
+        }
+    });
+
+    React.useEffect(() => {
+        console.log('create1');
+        return () => {
+            console.log('destroy1');
         }
     });
 

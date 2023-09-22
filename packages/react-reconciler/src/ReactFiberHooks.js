@@ -1,7 +1,7 @@
 import ReactSharedInternals from "shared/ReactSharedInternals";
 import { scheduleUpdateOnFiber } from "./ReactFiberWorkLoop";
-import { Passive as PassiveEffect } from './ReactFiberFlags';
-import { HasEffect as HookHasEffect, Passive as HookPassive } from './ReactHookEffectTags';
+import { Passive as PassiveEffect, Update as UpdateEffect } from './ReactFiberFlags';
+import { HasEffect as HookHasEffect, Passive as HookPassive, Layout as HookLayout } from './ReactHookEffectTags';
 import { enqueueConcurrentHookUpdate } from './ReactFiberConcurrentUpdates';
 
 const { ReactCurrentDispatcher } = ReactSharedInternals;
@@ -15,13 +15,15 @@ let currentHook = null;
 const HooksDispatcherOnMount = {
     useReducer: mountReducer,
     useState: mountState,
-    useEffect: mountEffect
+    useEffect: mountEffect,
+    useLayoutEffect: mountLayoutEffect
 }
 
 const HooksDispatcherOnUpdate = {
     useReducer: updateReducer,
     useState: updateState,
-    useEffect: updateEffect
+    useEffect: updateEffect,
+    useLayoutEffect: updateLayoutEffect
 }
 
 /**
@@ -65,6 +67,14 @@ function mountEffect(create, deps) {
 
 function updateEffect(create, deps) {
     return updateEffectImpl(PassiveEffect, HookPassive, create, deps);
+}
+
+function mountLayoutEffect(create, deps) {
+    return mountEffectImpl(UpdateEffect, HookLayout, create, deps);
+}
+
+function updateLayoutEffect(create, deps) {
+    return updateEffectImpl(UpdateEffect, HookLayout, create, deps);
 }
 
 function updateEffectImpl(fiberFlags, hookFlags, create, deps) {
