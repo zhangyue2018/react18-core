@@ -1,6 +1,108 @@
-import { MutationMask, Placement, Update } from "./ReactFiberFlags";
+import { MutationMask, Passive, Placement, Update } from "./ReactFiberFlags";
 import { FunctionComponent, HostComponent, HostRoot, HostText } from "./ReactWorkTags";
 import { appendInitialChild, insertBefore, commitUpdate } from "react-dom-bindings/src/client/ReactDOMHostConfig";
+import { HasEffect as HookHasEffect, Passive as HookPassive } from "./ReactHookEffectTags";
+
+export function commitPassiveUnmountEffects(root, finishedWork) {  // destroy
+    console.log('unmount---out--');
+    commitPassiveUnmountOnFiber(root, finishedWork);
+}
+
+export function commitPassiveMountEffects(root, finishedWork) {  // create
+    console.log('mount---out---');
+    commitPassiveMountOnFiber(root, finishedWork);
+}
+
+function commitPassiveUnmountOnFiber(root, finishedWork) {
+    const flags = finishedWork.flags;
+    switch(finishedWork.tag) {
+        case HostRoot:
+            recursivelyTranversePassiveUnmountEffects(root, finishedWork);
+            break;
+        case FunctionComponent:
+            recursivelyTranversePassiveUnmountEffects(root, finishedWork);
+            if(flags & Passive) {
+                commitHookPassiveUnmountEffects(finishedWork, HookHasEffect | HookPassive);
+            }
+    }
+}
+
+function commitPassiveMountOnFiber(finishedRoot, finishedWork) {
+    const flags = finishedWork.flags;
+    switch(finishedWork.tag) {
+        case HostRoot:
+            recursivelyTranversePassiveMountEffects(finishedRoot, finishedWork);
+            break;
+        case FunctionComponent:
+            recursivelyTranversePassiveMountEffects(finishedRoot, finishedWork);
+            if(flags & Passive) {
+                commitHookPassiveMountEffects(finishedWork, HookHasEffect | HookPassive);
+            }
+            break;
+    }
+}
+
+function recursivelyTranversePassiveUnmountEffects(root, parentFiber) {
+     if(parentFiber.subtreeFlags & Passive) {
+        let child = parentFiber.child;
+        while(child !== null) {
+            commitPassiveUnmountOnFiber(root, child);
+            child = child.sibling;
+        }
+    }
+}
+
+function recursivelyTranversePassiveMountEffects(root, parentFiber) {
+    if(parentFiber.subtreeFlags & Passive) {
+        let child = parentFiber.child;
+        while(child !== null) {
+            commitPassiveMountOnFiber(root, child);
+            child = child.sibling;
+        }
+    }
+}
+
+function commitHookPassiveUnmountEffects(finishedWork, hookFlags) {
+    commitHookEffectListUnmount(hookFlags, finishedWork);
+}
+
+function commitHookPassiveMountEffects(finishedWork, hookFlags) {
+    commitHookEffectListMount(hookFlags, finishedWork);
+}
+
+function commitHookEffectListUnmount(flags, finishedWork) {
+    const updateQueue = finishedWork.updateQueue;
+    const lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
+    if(lastEffect !== null) {
+        const firstEffect = lastEffect.next;
+        let effect = firstEffect;
+        do {
+            if((effect.tag & flags) === flags) {
+                const destroy = effect.destroy;
+                if(destroy !== undefined) {
+                    destroy();
+                }
+            }
+            effect = effect.next;
+        } while(effect !== firstEffect)
+    }
+}
+
+function commitHookEffectListMount(flags, finishedWork) {
+    const updateQueue = finishedWork.updateQueue;
+    const lastEffect = updateQueue !== null ? updateQueue.lastEffect : null;
+    if(lastEffect !== null) {
+        const firstEffect = lastEffect.next;
+        let effect = firstEffect;
+        do {
+            if((effect.tag & flags) === flags) {
+                const create = effect.create;
+                effect.destroy = create();
+            }
+            effect = effect.next;
+        } while(effect !== firstEffect)
+    }
+}
 
 /**
  * 递归遍历所有子节点并在每个fiber上应用mutation副作用
