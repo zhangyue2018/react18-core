@@ -78,6 +78,7 @@ function commitHookEffectListUnmount(flags, finishedWork) {
             if((effect.tag & flags) === flags) {
                 const destroy = effect.destroy;
                 if(destroy !== undefined) {
+                    effect.destroy = undefined;
                     destroy();
                 }
             }
@@ -262,6 +263,9 @@ export function commitMutationEffectsOnFiber(finishedWork, root) {
                     if(updatePayload) {
                         commitUpdate(instance, updatePayload, type, oldProps, newProps, finishedWork);
                     }
+                }
+                if(flags & LayoutMask) {
+                    commitHookEffectListUnmount(HookLayout, finishedWork);
                 }
             }
             break;

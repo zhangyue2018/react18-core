@@ -10,7 +10,14 @@ function FunctionComponent() {
         return () => {
             console.log('destroy---useLayoutEffects');
         }
-    });
+    }, [number]);
+
+    React.useEffect(() => {
+        console.log('create--useEffects---1111');
+        return () => {
+            console.log('destroy---useEffects---222');
+        }
+    }, [number]);
 
     return  <button onClick={ () => {
         setAge(number + 1);
