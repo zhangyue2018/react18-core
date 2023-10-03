@@ -1,5 +1,7 @@
+import { DefaultEventPriority } from 'react-reconciler/src/ReactEventPriorities';
 import { setInitialProperties, diffProperties, updateProperties } from './ReactDOMComponent';
 import { precacheFiberNode, updateFiberProps } from './ReactDOMComponentTree';
+import { getEventPriority } from '../events/ReactDOMEventListener';
 /**
  * 判断是否需要设置文本内容
  * @param {string} type - DOM元素的类型
@@ -83,4 +85,12 @@ export function prepareUpdate(domElement, type, oldProps, newProps) {
 export function commitUpdate(domElement, updatePayload, type, oldProps, newProps, finishedWork) {
     updateProperties(domElement, updatePayload, type, oldProps, newProps);
     updateFiberProps(domElement, newProps);
+}
+
+export function getCurrentEventPriority() {
+    const currentEvent = window.event;
+    if(currentEvent === undefined) {
+        return DefaultEventPriority;
+    }
+    return getEventPriority(currentEvent.type)
 }

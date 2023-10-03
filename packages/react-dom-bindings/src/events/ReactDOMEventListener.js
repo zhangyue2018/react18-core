@@ -1,6 +1,7 @@
 import getEventTarget from './getEventTarget';
 import { getClosestInstanceFromNode } from '../client/ReactDOMComponentTree';
 import { dispatchEventForPluginEventSystem } from './DOMPluginEventSystem';
+import { ContinuousEventPriority, DefaultEventPriority, DiscreteEventPriority } from 'react-reconciler/src/ReactEventPriorities';
 /**
  * 创建一个具有优先级的事件监听器包装器
  * @param {HTMLElement} targetContainer - 目标容器，通常是一个HTML元素 
@@ -35,4 +36,15 @@ export function dispatchEvent(domEventName, eventSystemFlags, targetContainer, n
     const nativeEventTarget = getEventTarget(nativeEvent);
     const targetInst = getClosestInstanceFromNode(nativeEventTarget); // targetInst是一个Fiber对象
     dispatchEventForPluginEventSystem(domEventName, eventSystemFlags, nativeEvent, targetInst, targetContainer);
+}
+
+export function getEventPriority(domEventName) {
+    switch(domEventName) {
+        case 'click':
+            return DiscreteEventPriority;
+        case 'drag':
+            return ContinuousEventPriority;
+        default:
+            return DefaultEventPriority;
+    }
 }
